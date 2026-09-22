@@ -1,0 +1,39 @@
+{
+  "task": {
+    "id": 101,
+    "name": "Registration Desk",
+    "required_skills": ["registration", "communication"],
+    "required_experience": 2,
+    "workload": 20
+  },
+  "unavailable_volunteer_id": 1,
+  "volunteers": [
+    {
+      "id": 1,
+      "name": "Rahul",
+      "skills": ["registration", "communication"],
+      "availability": false,
+      "experience": 4,
+      "current_workload": 20,
+      "max_workload": 100
+    },
+    {
+      "id": 2,
+      "name": "Ananya",
+      "skills": ["registration", "communication"],
+      "availability": true,
+      "experience": 3,
+      "current_workload": 10,
+      "max_workload": 100
+    },
+    {
+      "id": 3,
+      "name": "Kiran",
+      "skills": ["technical"],
+      "availability": true,
+      "experience": 5,
+      "current_workload": 70,
+      "max_workload": 80
+    }
+  ]
+}
