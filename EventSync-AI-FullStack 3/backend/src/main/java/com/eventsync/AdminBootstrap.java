@@ -1,0 +1,3 @@
+package com.eventsync;
+import org.springframework.boot.CommandLineRunner; import org.springframework.context.annotation.Bean; import org.springframework.context.annotation.Configuration; import org.springframework.context.annotation.Profile; import org.springframework.security.crypto.password.PasswordEncoder;
+@Configuration @Profile("!prod") public class AdminBootstrap { @Bean CommandLineRunner seedAdmin(AppUserRepository users,PasswordEncoder encoder){return args->{if(!users.existsByEmailIgnoreCase("admin@eventsync.local")){AppUser u=new AppUser();u.name="EventSync Administrator";u.email="admin@eventsync.local";u.passwordHash=encoder.encode("Admin123!");u.role="ADMIN";users.save(u);}};} }

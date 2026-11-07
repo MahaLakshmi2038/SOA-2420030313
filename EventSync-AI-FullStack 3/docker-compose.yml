@@ -1,0 +1,57 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: eventsync
+      POSTGRES_USER: eventsync
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U eventsync -d eventsync"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks: [internal]
+
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/eventsync
+      SPRING_DATASOURCE_USERNAME: eventsync
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+      EVENTSYNC_JWT_SECRET: ${EVENTSYNC_JWT_SECRET:?Set EVENTSYNC_JWT_SECRET in .env}
+      EVENTSYNC_ADMIN_EMAIL: ${EVENTSYNC_ADMIN_EMAIL:?Set EVENTSYNC_ADMIN_EMAIL in .env}
+      EVENTSYNC_ADMIN_PASSWORD: ${EVENTSYNC_ADMIN_PASSWORD:?Set EVENTSYNC_ADMIN_PASSWORD in .env}
+      EVENTSYNC_ADMIN_NAME: ${EVENTSYNC_ADMIN_NAME:-EventSync Administrator}
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O - http://127.0.0.1:8080/actuator/health | grep -q UP"]
+      interval: 20s
+      timeout: 5s
+      retries: 10
+      start_period: 45s
+    networks: [internal]
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT:-8088}:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks: [internal]
+
+volumes:
+  postgres_data:
+networks:
+  internal:
+    driver: bridge
